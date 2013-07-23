@@ -6,9 +6,6 @@ DEBIAN_VERSION="wheezy"
 DEBIAN_ARCH="amd64"
 DEBIAN_MIRROR="http://ftp.pl.debian.org"
 
-DI_PRESEED_URL="http://www.mimuw.edu.pl/~luk/preseed.cfg"
-DI_LATE_COMMAND="wget http://www.mimuw.edu.pl/~luk/late_command.sh -O /target/tmp/late_command.sh && chmod +x /target/tmp/late_command.sh && in-target /tmp/late_command.sh"
-
 # --
 
 TEMP="$( mktemp -d )"
@@ -34,13 +31,22 @@ fi
 
 tar xfz "${TEMP}/netboot.tar.gz" -C "$PXE_TFTP_PREFIX"
 
+cp preseed.cfg late_command.sh "$PXE_TFTP_PREFIX"
+
+gunzip "${PXE_TFTP_PREFIX}/debian-installer/amd64/initrd.gz"
+
+echo "preseed.cfg" | cpio -ovA -H newc -F "${PXE_TFTP_PREFIX}/debian-installer/amd64/initrd"
+echo "late_command.sh" | cpio -ovA -H newc -F "${PXE_TFTP_PREFIX}/debian-installer/amd64/initrd" 
+
+gzip "${PXE_TFTP_PREFIX}/debian-installer/amd64/initrd"
+
 cat <<EOF > ${PXE_TFTP_PREFIX}/pxelinux.cfg/default
 default auto
 prompt 0
 timeout 0
 label auto
 	kernel debian-installer/amd64/linux
-	append auto=true url=$DI_PRESEED_URL priority=critical netcfg/hostname=$VM_NAME preseed/late_command="$DI_LATE_COMMAND" vga=788 initrd=debian-installer/amd64/initrd.gz
+	append priority=critical file=/preseed.cfg hostname=$VM_NAME keymap=pl locale=pl_PL auto vga=788 initrd=debian-installer/amd64/initrd.gz
 EOF
 
 VBoxManage createvm \
@@ -77,7 +83,6 @@ VBoxManage setextradata "$VM_NAME" \
 VBoxManage storageattach "${VM_NAME}" \
 	--storagectl "SATA Controller" \
 	--port 0 \
-	--device 0 \
 	--type hdd \
 	--medium "${VM_NAME}/${VM_NAME}.vdi"
 
@@ -88,6 +93,6 @@ VBoxManage modifyvm "${VM_NAME}" \
 
 vagrant package --base "${VM_NAME}" --output "${VM_NAME}.box"
 
-echo VBoxManage unregistervm "${VM_NAME}" --delete
+VBoxManage unregistervm "${VM_NAME}" --delete
 
 
