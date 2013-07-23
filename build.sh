@@ -31,8 +31,6 @@ fi
 
 tar xfz "${TEMP}/netboot.tar.gz" -C "$PXE_TFTP_PREFIX"
 
-cp preseed.cfg late_command.sh "$PXE_TFTP_PREFIX"
-
 gunzip "${PXE_TFTP_PREFIX}/debian-installer/amd64/initrd.gz"
 
 echo "preseed.cfg" | cpio -ovA -H newc -F "${PXE_TFTP_PREFIX}/debian-installer/amd64/initrd"
