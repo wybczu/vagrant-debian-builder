@@ -7,20 +7,16 @@ apt-get install -y mc zip unzip git tig subversion \
 apt-get -y autoremove
 apt-get clean
 
-
 # sudo configuration
 cat <<EOF > /etc/sudoers.d/00-vagrant-user
 vagrant ALL=(ALL) NOPASSWD:ALL
 EOF
 
-
 # empty motd
 echo -n > /etc/motd
 
-
 # default editor
 update-alternatives --set editor /usr/bin/vim.nox
-
 
 # sane vimrc...
 cat <<EOV > /etc/vim/vimrc.local
@@ -44,22 +40,19 @@ set autowrite		" Automatically save before commands like :next and :make
 set hidden              " Hide buffers when they are abandoned
 EOV
 
-
 # ...and /root/.bashrc
 cat <<EOB > /root/.bashrc
 export LS_OPTIONS='--color=auto'
-alias ls='ls $LS_OPTIONS'
-alias ll='ls $LS_OPTIONS -l'
+alias ls='ls \$LS_OPTIONS'
+alias ll='ls \$LS_OPTIONS -l'
 alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
 EOB
 
-
 # /vagrant dir
 mkdir /vagrant
 chown -R vagrant:vagrant /vagrant
-
 
 # vagrant ssh key
 umask 077
