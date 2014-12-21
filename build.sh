@@ -18,16 +18,16 @@ PXE_BOOT_FILE="pxelinux.0"
 
 log() {
 	local prefix="[$(date +%Y/%m/%d\ %H:%M:%S)]:"
-	echo "${prefix} $@" >&2
+	echo "${prefix} $*" >&2
 } 
 
 trap 'rm -rf "${TEMP}" "${VM_NAME}"; exit $?' EXIT INT TERM
 
-mkdir -p ${PXE_TFTP_PREFIX}
+mkdir -p "${PXE_TFTP_PREFIX}"
 
 log "INFO" "Preparing netboot image."
 
-NETBOOT_SHA256SUM="$( wget -q ${NETBOOT_URL}/SHA256SUMS -O - \
+NETBOOT_SHA256SUM="$( wget -q "${NETBOOT_URL}/SHA256SUMS" -O - \
 	| grep 'netboot/netboot.tar.gz' \
 	| cut -d' ' -f1 )"
 
